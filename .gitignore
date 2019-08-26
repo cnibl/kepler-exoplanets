@@ -1,0 +1,4 @@
+*.pyc
+docs/_build
+docs/make.bat
+src/.ipynb_checkpoints/*
