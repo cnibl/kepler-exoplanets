@@ -10,6 +10,9 @@ Welcome to Kepler exoplanet project's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   dataset
+   analysis
+
 
 
 Indices and tables

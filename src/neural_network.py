@@ -4,9 +4,11 @@
 # Imports for data handling, plotting
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
+import matplotlib
 import seaborn as sns
 from pathlib import Path
+from joblib import dump,load
 
 # Imports for machine learning
 from sklearn.neural_network import MLPClassifier
@@ -14,7 +16,8 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder, Imputer
+from sklearn.preprocessing import LabelEncoder
+from sklearn.impute import SimpleImputer
 
 
 # Read input data into a DataFrame and  and features to make prediction
@@ -35,53 +38,61 @@ y = encoder.fit_transform(kepler_data[target_column].values.ravel())
 
 # Separate into training and test data
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, 
-      test_size=0.3, random_state=0)
+      test_size=0.2, random_state=0)
 
-      
 if __name__=="__main__":
    
    # Number of hidden layers and their sizes (same size for all) determined by
    # trial and error on the combinations in layer_tests.py
-   no_hidden_layers = 5
-   size_per_layer = 8
+   no_hidden_layers = 2
+   size_per_layer = 16
    layer_sizes = tuple(size_per_layer for i in range(no_hidden_layers))
    
    # Bundle preprocessing and modeling code in a pipeline
-   imputer = Imputer(strategy="mean")
-   model = MLPClassifier(hidden_layer_sizes=layer_sizes, random_state=0)
-   nn_pipeline = Pipeline(steps=[("imputer", imputer),("model", model)])
+   imputer = SimpleImputer(strategy="mean")
+   model = MLPClassifier(hidden_layer_sizes=layer_sizes, 
+         max_iter=400, random_state=0)
+   nn_pipeline = Pipeline(steps=[("imputer", imputer), 
+         ("model", model)])
    
    # Do cross validation with grid search to optimise parameters like alpha 
    # and learning rate
-   param_grid = [{"model__alpha": [1e-5, 1e-4, 1e-3], 
-         "model__activation": ["logistic", "relu"], 
-         "model__learning_rate_init": [1e-5, 1e-4, 1e-3]}]
+   param_grid = [
+         {"model__solver": ["adam"], 
+         "model__alpha": [0.0001, 0.001, 0.01, 0.1, 1], 
+         "model__learning_rate_init": [0.001,0.01,0.1, 1],
+         "model__beta_1": [0.3, 0.4, 0.5, 0.6, 0.7], 
+         "model__beta_2": [0.3, 0.4, 0.5, 0.6, 0.7], 
+         "model__activation": ["logistic"], 
+         "model__hidden_layer_sizes": [layer_sizes]}
+         ]
+   #param_grid = [{"model__alpha": [1e-5], 
+   #       "model__activation": ["relu"],
+   #       "model__learning_rate_init": [1e-3]}]
    
-   gs = GridSearchCV(nn_pipeline, param_grid, cv=5)
+   gs = GridSearchCV(nn_pipeline, param_grid, cv=5, scoring="f1", n_jobs=4)
+   
+   # Train model with best parameter set
    gs.fit(X_train, y_train)
    
+   # Dump model into joblib file for use in other scripts
+   dump(gs, "neural_network.joblib")
+   
+   #gs = load("neural_network.joblib")
+   
+   # Make predictions with the trained model on validation set
+   preds = gs.predict(X_valid)   
+   
+   # Print best parameters and scoring results
    print("Best parameters found on training set:")
-   print()
+   print("")
    print(gs.best_params_)
-   print()
-   print("Grid scores on validation set:")
-   print()
-   means = gs.cv_results_["mean_test_score"]
-   stds = gs.cv_results_["std_test_score"]
-   for mean, std, params in zip(means, stds, gs.cv_results_["params"]):
-       print("%0.3f (+/-%0.03f) for %r"
-             % (mean, std * 2, params))
-   print()
+   print("")
    print("Detailed classification report:")
-   print()
+   print("")
    print("The model is trained on the full training set.")
    print("The scores are computed on the full validation set.")
-   print()
-   preds = gs.predict(X_valid)
+   print("")
    print(classification_report(y_valid, preds))
-   print()
-       
-       
-   # Train model
+   print("")
    
-   # Test on 
