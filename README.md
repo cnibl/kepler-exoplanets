@@ -3,4 +3,6 @@ Project on exoplanet data from the Kepler telescope. The analysis is contained i
 
 
 ## Documentation
-There is documentation on the dataset and the analysis in the ``docs`` folder. To read this, first **build** the documentation by typing ``make html`` in the ``docs`` directory, then the resulting html documentation can be accessed by typing ``open _build/html/index.html``. Alternatively, a pdf file can be built (using ``pdflatex``) by typing instead ``make latexpdf`` in the ``docs`` directory. The resulting pdf can then be found in the ``_build/latex`` directory.
+There is documentation on the dataset and the analysis in the ``docs`` folder.
+
+Link to latest stable build: https://sthlm-housing-report.readthedocs.io
