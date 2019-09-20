@@ -5,4 +5,4 @@ Project on exoplanet data from the Kepler telescope. The analysis is contained i
 ## Documentation
 There is documentation on the dataset and the analysis in the ``docs`` folder.
 
-Link to latest stable build: https://sthlm-housing-report.readthedocs.io
+Link to latest stable build: https://kepler-exoplanets.readthedocs.io
